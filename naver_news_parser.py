@@ -58,24 +58,27 @@ def extract_article_info(url):
 def analyze_bias_with_gpt(article_text):
     """
     기사를 GPT API에 전달하여 정치적 편향성을 분석하는 함수.
+    GPT의 출력 형식을 JSON 형태로 고정함.
     """
     try:
         prompt = f"""
         아래는 뉴스 기사입니다. 이 기사를 읽고 정치적 편향성을 판단해주세요.
-        결과는 -50(매우 진보적)에서 +50(매우 보수적)까지의 점수로 표현하고, 
-        판단의 근거를 간단히 설명해 주세요.
+        결과는 반드시 아래의 JSON 형식만 사용해서 답변하세요:
+
+        {{
+            "score": 결과는 -50(매우 진보적)에서 +50(매우 보수적)까지의 점수로 편향성을 평가,
+            "reason": "위 점수에 대해 판단한 근거"
+        }}
 
         기사 내용:
         {article_text}
-
-        분석 결과:
         """
-
+        
         # 최신 API 호출 (openai v1.x)
         response = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are a helpful assistant for political bias analysis."},
+                {"role": "system", "content": "You are a helpful assistant for political bias analysis. Respond ONLY in JSON format."},
                 {"role": "user", "content": prompt}
             ],
             max_tokens=150,
@@ -84,32 +87,15 @@ def analyze_bias_with_gpt(article_text):
 
         # GPT 응답 텍스트 추출
         result = response.choices[0].message.content.strip()
-        return result
-
+        # JSON 파싱 시도
+        try:
+            parsed_result = json.loads(result)
+            return parsed_result
+        except json.JSONDecodeError:
+            return {"error": "Invalid JSON format returned by GPT."}
+    
     except Exception as e:
-        return f"Error analyzing bias: {e}"
-
-
-
-
-
-
-def parse_bias_result(result):
-    """
-    GPT 응답 결과에서 점수와 근거를 JSON 형식으로 파싱.
-    """
-    try:
-        # 점수 추출 (-50 ~ +50 사이 숫자)
-        score_match = re.search(r"점수[:：]?\s*(-?\d+)", result)
-        score = int(score_match.group(1)) if score_match else None
-        
-        # 근거 추출 (점수 뒤 텍스트)
-        reason_start = score_match.end() if score_match else 0
-        reason = result[reason_start:].strip() if reason_start else "근거를 찾을 수 없습니다."
-        
-        return {"score": score, "reason": reason}
-    except Exception as e:
-        return {"error": f"Error parsing result: {e}"}
+        return {"error": f"Error analyzing bias: {e}"}
 
 def add_article_to_db(article_info):
     """
@@ -133,16 +119,11 @@ def main():
         print("\n정치적 편향성 분석 중...")
         bias_analysis = analyze_bias_with_gpt(article_info['content'])
         print("\n정치적 편향성 분석 결과:")
-        print(bias_analysis)
+        print(json.dumps(bias_analysis, ensure_ascii=False, indent=4))
 
-        # 3. 점수와 근거 파싱
-        bias_result = parse_bias_result(bias_analysis)
-        print("\n파싱된 결과(JSON):")
-        print(json.dumps(bias_result, ensure_ascii=False, indent=4))
-
-        # 4. 점수와 근거를 article_info에 추가 후 저장
-        article_info['score'] = bias_result.get('score')
-        article_info['reason'] = bias_result.get('reason')
+        # 3. 점수와 근거를 article_info에 추가 후 저장
+        article_info['score'] = bias_analysis.get('score')
+        article_info['reason'] = bias_analysis.get('reason')
         add_article_to_db(article_info)
 
     # 데이터베이스 출력
