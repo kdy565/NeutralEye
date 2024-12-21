@@ -3,7 +3,7 @@
     "name": "뉴스 가치 중립성 평가",
     "version": "1.0",
     "description": "웹 페이지에서 본문을 추출하고 뉴스 중립성을 평가합니다.",
-    "permissions": ["activeTab", "scripting"],
+    "permissions": ["activeTab", "scripting", "storage"],
     "host_permissions": ["<all_urls>"],
     "action": {
       "default_popup": "popup.html",
