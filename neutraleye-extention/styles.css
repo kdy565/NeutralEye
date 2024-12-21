@@ -23,6 +23,45 @@ body {
     background-color: #45a049;
   }
   
+  #gauge-container {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    margin: 20px auto;
+  }
+  
+  #gauge {
+    position: relative;
+    width: 150px;
+    height: 75px;
+    background: #f5f5f5;
+    border-radius: 75px 75px 0 0;
+    border: 2px solid #ddd;
+    overflow: hidden;
+  }
+  
+  #needle {
+    position: absolute;
+    width: 2px;
+    height: 70px;
+    background: red;
+    top: 5px;
+    left: 74px;
+    transform-origin: bottom center;
+    transform: rotate(0deg);
+    transition: transform 0.5s ease-in-out;
+  }
+  
+  #score-label {
+    position: absolute;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+  }
+  
   #result-container {
     margin-top: 20px;
   }
@@ -33,6 +72,10 @@ body {
   
   .success {
     color: green;
+  }
+  
+  .analysis {
+    color: #333;
   }
   
   .error {

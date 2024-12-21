@@ -8,12 +8,19 @@
 </head>
 <body>
   <h1>뉴스 가치 평가</h1>
-  <button id="analyze-btn">본문 분석</button>
+  <div id="gauge-container">
+    <div id="gauge">
+      <div id="needle"></div>
+      <div id="score-label">0</div>
+    </div>
+  </div>
   <div id="result-container">
     <p id="loading" style="display: none;">분석 중...</p>
-    <p id="result" class="success" style="display: none;"></p>
+    <p id="summary" class="success" style="display: none;"></p>
+    <p id="analysis" class="analysis" style="display: none;"></p>
     <p id="error" class="error" style="display: none;"></p>
   </div>
+  <button id="analyze-btn">본문 분석</button>
   <script src="popup.js"></script>
 </body>
 </html>

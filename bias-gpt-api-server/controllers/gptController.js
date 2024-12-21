@@ -20,7 +20,7 @@ exports.analyzeNews = async (req, res) => {
   }
 
   try {
-    console.log("수신된 데이터:", { title, content, publisher });
+    //console.log("수신된 데이터:", { title, content, publisher });
 
     if (isDebug) {
       // 디버깅 모드: 더미 데이터 반환
@@ -32,7 +32,7 @@ exports.analyzeNews = async (req, res) => {
     }
 
     const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo", // 사용할 GPT 모델
+      model: "gpt-4o", // 사용할 GPT 모델
       messages: [
         {
           role: "system",
@@ -44,13 +44,13 @@ exports.analyzeNews = async (req, res) => {
       
       결과는 JSON 형식으로 반환되어야 합니다. 예시는 다음과 같습니다:
       
-      점수: 6
+      점수: -9
       한줄평: 이재명에 대해 검찰 수사의 부당함만을 강조하고 있는 편향된 기사입니다.
       근거: 글 전체에 이재명의 혐의에 대한 언급을 최대한 배제하면서 억울함만을 피력하는 기사로 보아, ~입니다.
       
       반환 형식:
       {
-        "score": 6,
+        "score": -9,
         "summary": "이재명에 대해 검찰 수사의 부당함만을 강조하고 있는 편향된 기사입니다.",
         "analysis": "글 전체에 이재명의 혐의에 대한 언급을 최대한 배제하면서 억울함만을 피력하는 기사로 보아, ~입니다."
       }`

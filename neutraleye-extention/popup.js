@@ -1,12 +1,17 @@
 document.getElementById("analyze-btn").addEventListener("click", async () => {
     const loadingEl = document.getElementById("loading");
-    const resultEl = document.getElementById("result");
+    const summaryEl = document.getElementById("summary");
+    const analysisEl = document.getElementById("analysis");
     const errorEl = document.getElementById("error");
+    const needleEl = document.getElementById("needle");
+    const scoreLabelEl = document.getElementById("score-label");
   
     loadingEl.style.display = "block";
-    resultEl.style.display = "none";
+    summaryEl.style.display = "none";
+    analysisEl.style.display = "none";
     errorEl.style.display = "none";
-    resultEl.textContent = "";
+    summaryEl.textContent = "";
+    analysisEl.textContent = "";
     errorEl.textContent = "";
   
     try {
@@ -35,24 +40,28 @@ document.getElementById("analyze-btn").addEventListener("click", async () => {
       }
   
       const rawData = await res.json();
-      const data = JSON.parse(rawData.result);
-      
-      console.log("파싱된 GPT 응답 데이터:", data);
+      const data = JSON.parse(rawData.result); // result를 다시 파싱
+  
       if (!data || typeof data.score === "undefined" || typeof data.summary === "undefined" || typeof data.analysis === "undefined") {
         throw new Error("API 응답 데이터가 올바르지 않습니다.");
       }
-      
-      // 결과를 줄마다 표시
-        loadingEl.style.display = "none";
-        resultEl.style.display = "block";
-        resultEl.innerHTML = `
-            <p><strong>점수:</strong> ${data.score}</p>
-            <p><strong>한줄평:</strong> ${data.summary}</p>
-            <p><strong>근거:</strong> ${data.analysis}</p>
-        `;
+  
+      // 점수 시각화
+      const score = data.score;
+      const rotation = (score / 10) * 90; // -10 ~ +10을 -90deg ~ +90deg로 변환
+      needleEl.style.transform = `rotate(${rotation}deg)`;
+      scoreLabelEl.textContent = score;
+  
+      // 결과 표시
+      loadingEl.style.display = "none";
+      summaryEl.style.display = "block";
+      analysisEl.style.display = "block";
+      summaryEl.textContent = `한줄평: ${data.summary}`;
+      analysisEl.textContent = `근거: ${data.analysis}`;
     } catch (error) {
       loadingEl.style.display = "none";
       errorEl.style.display = "block";
       errorEl.textContent = `오류: ${error.message}`;
     }
   });
+  
